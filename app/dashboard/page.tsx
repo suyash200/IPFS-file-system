@@ -1,8 +1,10 @@
 /// pages/files.tsx
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MoreVertical, Download, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { pinata } from '@/utils/config';
+import { redirect, useRouter } from 'next/navigation';
+import { downloadAndUseFile } from '@/utils/fetchIPFS';
 
 // TypeScript interfaces
 interface FileData {
@@ -27,6 +29,7 @@ interface PinataFile {
 }
 
 export default function FilesPage() {
+
   const [files, setFiles] = useState<PinataFile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +38,31 @@ export default function FilesPage() {
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hellow, setHellow] = useState<any>();
+  const [uploading, setUploading] = useState(false);
+  const [cid, setCid] = useState()
+  const inputFile: any = useRef(null);
+  const [file, setFile] = useState("");
+  const router = useRouter()
+  const uploadFile = async (fileToUpload: any) => {
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", fileToUpload, `${fileToUpload.name}`);
+      const request = await fetch("/api/files", {
+        method: "POST",
+        body: formData,
+      });
+      const response = await request.json();
+      console.log(response);
+      setCid(response.IpfsHash);
+      setUploading(false);
+    } catch (e) {
+      console.log(e);
+      setUploading(false);
+      alert("Trouble uploading file");
+    }
+  };
+
   const loadRecent = async () => {
     try {
       const res = await fetch("/api/files");
@@ -151,14 +179,15 @@ export default function FilesPage() {
     setOpenMenuId(openMenuId === id ? null : id);
   };
 
-  const handleDownload = (file: PinataFile): void => {
+  const handleDownload = async (file: PinataFile) => {
     console.log(`Downloading file: ${file.name}`);
     // Create a gateway URL for the file
-    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${file.cid}`;
-
+    downloadAndUseFile()
+    // redirect(gatewayUrl)
     // Open in a new tab or create a download link
-    window.open(gatewayUrl, '_blank');
-
+    //router.push(gatewayUrl)
+    //  const res = await fetch(gatewayUrl);
+    // console.log(res)
     setOpenMenuId(null);
   };
 
@@ -202,15 +231,36 @@ export default function FilesPage() {
     }
   };
 
-
+  const handleChange = (e: any) => {
+    setFile(e.target.files[0]);
+    uploadFile(e.target.files[0]);
+  };
   return (
     <div className="p-6 max-w-6xl mx-auto" onClick={handleClickOutside}>
-      <h1 className="text-2xl font-bold mb-6">Files</h1>
+      <div className='flex flex-row gap-4'>
+        <h1 className="text-2xl font-bold mb-6">Files</h1>
+        <input
+          type="file"
+          id="file"
+          ref={inputFile}
+          onChange={handleChange}
+          style={{ display: "none" }}
+        />
+
+        <button
+          disabled={uploading}
+          onClick={() => inputFile.current.click()}
+          className="w-[150px] bg-secondary text-light rounded-3xl py-2 px-2 hover:bg-accent hover:text-light transition-all duration-300 ease-in-out"
+        >
+          {uploading ? "Uploading..." : "Upload"}
+        </button>
+      </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         {loading ? (
           <div className="p-6 text-center">
             <p>Loading files...</p>
+
           </div>
         ) : error ? (
           <div className="p-6 text-center text-red-500">
