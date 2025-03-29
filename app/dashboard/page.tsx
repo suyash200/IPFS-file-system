@@ -1,7 +1,7 @@
 /// pages/files.tsx
 "use client"
 import { useState, useEffect, useRef } from 'react';
-import { MoreVertical, Download, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MoreVertical, Download, Trash2, ChevronLeft, ChevronRight, Share, Clipboard } from 'lucide-react';
 import { pinata } from '@/utils/config';
 import { redirect, useRouter } from 'next/navigation';
 import { downloadAndUseFile } from '@/utils/fetchIPFS';
@@ -15,7 +15,7 @@ interface FileData {
   creationDate: string;
   fileId: string;
 }
-interface PinataFile {
+export interface PinataFile {
   id: string;
   name: string;
   cid: string;
@@ -140,8 +140,6 @@ export default function FilesPage() {
 
     fetchFiles();
   }, []);
-  console.log("files", files)
-  console.log("hellow is", hellow)
   // Helper function to format file size
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -179,10 +177,17 @@ export default function FilesPage() {
     setOpenMenuId(openMenuId === id ? null : id);
   };
 
+  const handleShare = (file: PinataFile) => {
+    const generateLink = `https://${localStorage.getItem('pinataURL')}/ipfs/${file.ipfs_pin_hash}?pinataGatewayToken=${localStorage.getItem('pinataGateWayToken')}`
+    console.log(generateLink);
+    navigator.clipboard.writeText(generateLink)
+    window.alert("link copied to clipboard")
+  }
   const handleDownload = async (file: PinataFile) => {
-    console.log(`Downloading file: ${file.name}`);
+    console.log(`Downloading file: ${file.ipfs_pin_hash}`);
     // Create a gateway URL for the file
-    downloadAndUseFile()
+    console.log("the file is", file);
+    downloadAndUseFile(file)
     // redirect(gatewayUrl)
     // Open in a new tab or create a download link
     //router.push(gatewayUrl)
@@ -371,6 +376,17 @@ export default function FilesPage() {
                       {openMenuId === file.id && (
                         <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
                           <div className="py-1" role="menu" aria-orientation="vertical">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                handleShare(file)
+                              }}
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                              role="menuitem">
+                              <Share className="mr-3 h-4 w-4">
+                                Share
+                              </Share>
+                            </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();

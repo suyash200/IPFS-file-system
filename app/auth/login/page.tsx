@@ -1,7 +1,7 @@
 // pages/auth/login.tsx
 "use client"
 import { useState, FormEvent, ChangeEvent } from 'react';
-import { Router, useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Head from 'next/head';
 
@@ -47,7 +47,9 @@ export default function Login(): JSX.Element {
       if (!response.ok) {
         throw new Error(data.message || 'Login failed');
       }
-
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("pinataURL", data.user.next_public_gateWay)
+      localStorage.setItem("pinataGateWayToken", data.user.next_public_gateway_token)
       // Redirect to dashboard on successful login
       router.push('/dashboard');
     } catch (err) {
