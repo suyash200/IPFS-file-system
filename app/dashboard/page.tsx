@@ -51,6 +51,9 @@ export default function FilesPage() {
       const request = await fetch("/api/files", {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `${localStorage.getItem('token')}`
+        }
       });
       const response = await request.json();
       console.log(response);
@@ -65,7 +68,11 @@ export default function FilesPage() {
 
   const loadRecent = async () => {
     try {
-      const res = await fetch("/api/files");
+      const res = await fetch("/api/files", {
+        headers: {
+          Authorization: `${localStorage.getItem('token')}`
+        }
+      });
       const json = await res.json();
       return json
       //   setCid(json.ipfs_pin_hash);

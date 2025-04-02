@@ -1,6 +1,9 @@
 import { PinataSDK } from "pinata";
 
-export const pinata = new PinataSDK({
-	pinataJwt: `${process.env.PINATA_JWT}`,
-	pinataGateway: `${process.env.NEXT_PUBLIC_GATEWAY_URL}`,
-});
+export const pinata = (pinataJwt: string, pinataGatewayUrl: string) => {
+  return new PinataSDK({
+    pinataJwt: pinataJwt,
+    pinataGateway: pinataGatewayUrl,
+
+  })
+};
