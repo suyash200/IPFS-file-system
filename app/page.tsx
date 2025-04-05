@@ -1,212 +1,307 @@
-"use client";
-
-import { useState, useRef } from "react";
-import Head from "next/head";
-import Image from "next/image";
-import Files from "@/components/Files";
-
+// pages/index.js
+"use client"
+import { useState } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
 
 export default function Home() {
-  const [file, setFile] = useState("");
-  const [cid, setCid] = useState("");
-  const [uploading, setUploading] = useState(false);
-
-  const inputFile: any = useRef(null);
-  const loadRecent = async () => {
-    try {
-      const res = await fetch("/api/files");
-      const json = await res.json();
-      setCid(json.ipfs_pin_hash);
-    } catch (e) {
-      console.log(e);
-      alert("trouble loading files");
-    }
-  };
-  const uploadFile = async (fileToUpload: any) => {
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append("file", fileToUpload, `${fileToUpload.name}`);
-      const request = await fetch("/api/files", {
-        method: "POST",
-        body: formData,
-      });
-      const response = await request.json();
-      console.log(response);
-      setCid(response.IpfsHash);
-      setUploading(false);
-    } catch (e) {
-      console.log(e);
-      setUploading(false);
-      alert("Trouble uploading file");
-    }
-  };
-
-  const handleChange = (e: any) => {
-    setFile(e.target.files[0]);
-    uploadFile(e.target.files[0]);
-  };
-
-
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
       <Head>
-        <title>Pinata Next.js App</title>
-        <meta name="description" content="Generated with create-pinata-app" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/pinnie.png" />
+        <title>DecentralStore - IPFS Storage Solution</title>
+        <meta name="description" content="Secure, decentralized file storage powered by IPFS" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-full min-h-screen m-auto flex flex-col justify-center items-center">
-        <div className="w-full h-full m-auto bg-heroImage bg-cover bg-center flex flex-col justify-center items-center">
-          <div className="h-full max-w-screen-xl">
-            <div className="w-full m-auto mt-16 flex justify-start items-center">
-              <Image
-                src="/logo.png"
-                alt="Pinata logo"
-                height={30}
-                width={115}
-              />
-            </div>
-            <div className="h-full w-full m-auto flex justify-center items-center gap-8">
-              <div className="w-1/2 flex flex-col gap-6">
-                <h1>Pinata + Next.js</h1>
-                <p>
-                  Update the{" "}
-                  <span className="py-1 px-2 rounded-md italic border-2 border-accent">
-                    .env.local
-                  </span>{" "}
-                  file to set your Pinata API key and (optionally) your IPFS
-                  gateway URL, restart the app, then click the Upload button and
-                  you'll see uploads to IPFS just work™️. If you've already
-                  uploaded files, click Load recent to see the most recently
-                  uploaded file.
-                </p>
-                <input
-                  type="file"
-                  id="file"
-                  ref={inputFile}
-                  onChange={handleChange}
-                  style={{ display: "none" }}
-                />
-                <div>
-                  <button
-                    onClick={loadRecent}
-                    className="mr-10 w-[150px] bg-light text-secondary border-2 border-secondary rounded-3xl py-2 px-4 hover:bg-secondary hover:text-light transition-all duration-300 ease-in-out"
-                  >
-                    Load recent
-                  </button>
-                  <button
-                    disabled={uploading}
-                    onClick={() => inputFile.current.click()}
-                    className="w-[150px] bg-secondary text-light rounded-3xl py-2 px-4 hover:bg-accent hover:text-light transition-all duration-300 ease-in-out"
-                  >
-                    {uploading ? "Uploading..." : "Upload"}
-                  </button>
-                </div>
-                {cid && <Files cid={cid} />}
-              </div>
-              <div className="w-1/2 flex justify-center items-center h-full">
-                <Image
-                  height={600}
-                  width={600}
-                  src="/hero.png"
-                  alt="hero image of computer and code"
-                />
-              </div>
-            </div>
+
+      {/* Navigation */}
+      <nav className="px-6 py-4 bg-gray-900 shadow-md">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <svg className="w-8 h-8 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <span className="text-xl font-bold">DecentralStore</span>
           </div>
-          <div className="h-full w-full bg-secondary">
-            <div className="max-w-screen-xl min-h-full my-8 mx-auto flex justify-center items-center gap-8">
-              <div className="text-center bg-light rounded-lg w-full flex flex-col justify-center items-center p-2 gap-4 h-[475px]">
-                <Image
-                  src="/ufo.png"
-                  alt="Pinnie floating with balloons"
-                  height="200"
-                  width="200"
-                />
-                <h2 className="font-telegraf font-bold text-3xl">
-                  Read the docs
-                </h2>
-                <p className="w-2/3">
-                  SDKs, API reference, and recipes all designed to help you get
-                  started faster.
-                </p>
-                <a
-                  className="bg-secondary text-light rounded-3xl pt-3 pb-2 px-4 hover:bg-accent hover:text-light transition-all duration-300 ease-in-out font-telegraf font-bold"
-                  href="https://docs.pinata.cloud"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Explore the docs
-                </a>
-              </div>
-              <div className="text-center bg-light rounded-lg w-full flex flex-col justify-center items-center p-2 gap-4 h-[475px]">
-                <Image
-                  src="/rocket.png"
-                  alt="Pinnie with scuba gear on"
-                  height="200"
-                  width="200"
-                />
-                <h2 className="font-telegraf font-bold text-3xl">
-                  Pinata dashboard
-                </h2>
-                <p className="w-2/3">
-                  Log into your Pinata dashboard to see all your files,
-                  configure an IPFS gateway, and more.
-                </p>
-                <a
-                  className="bg-secondary text-light rounded-3xl pt-3 pb-2 px-4 hover:bg-accent hover:text-light transition-all duration-300 ease-in-out font-telegraf font-bold"
-                  href="https://app.pinata.cloud"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Go to the dashboard
-                </a>
-              </div>
-            </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link href="#features" className="hover:text-blue-400 transition-colors">
+              Features
+            </Link>
+            <Link href="#how-it-works" className="hover:text-blue-400 transition-colors">
+              How It Works
+            </Link>
+            <Link href="/auth/login" className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-colors">
+              Sign In
+            </Link>
+            <Link href="/auth/login" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-colors">
+              Get Started
+            </Link>
           </div>
-          <div className="bg-accent w-full h-full">
-            <div className="max-w-screen-xl mx-auto py-6 flex justify-between items-center text-light">
-              <p className="text-xs">
-                Copyright © 2023 Pinata | All Rights Reserved{" "}
+
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-200 hover:text-white focus:outline-none"
+            >
+              {isMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Navigation */}
+      {isMenuOpen && (
+        <div className="md:hidden bg-gray-800 py-4">
+          <div className="container mx-auto px-6 flex flex-col space-y-4">
+            <Link href="#features" className="hover:text-blue-400 transition-colors py-2">
+              Features
+            </Link>
+            <Link href="#how-it-works" className="hover:text-blue-400 transition-colors py-2">
+              How It Works
+            </Link>
+            <Link href="/login" className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg transition-colors text-center">
+              Sign In
+            </Link>
+            <Link href="/auth/register" className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-colors text-center">
+              Get Started
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Hero Section */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="md:w-1/2 mb-10 md:mb-0">
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
+                Secure, Decentralized File Storage with IPFS
+              </h1>
+              <p className="text-lg md:text-xl text-gray-300 mb-8">
+                Store your files on the InterPlanetary File System. Distributed, encrypted, and immutable storage for the modern web.
               </p>
-              <div className="flex items-center gap-10 mr-4">
-                <a href="https://twitter.com/pinatacloud" target="_blank">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#f6f6f6"
-                    className="h-6 w-6"
-                    viewBox="0 0 512 512"
-                  >
-                    <path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z" />
-                  </svg>
-                </a>
-                <a href="https://discord.gg/pinata" target="_blank">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#f6f6f6"
-                    className="h-6 w-6"
-                    viewBox="0 0 640 512"
-                  >
-                    <path d="M524.531,69.836a1.5,1.5,0,0,0-.764-.7A485.065,485.065,0,0,0,404.081,32.03a1.816,1.816,0,0,0-1.923.91,337.461,337.461,0,0,0-14.9,30.6,447.848,447.848,0,0,0-134.426,0,309.541,309.541,0,0,0-15.135-30.6,1.89,1.89,0,0,0-1.924-.91A483.689,483.689,0,0,0,116.085,69.137a1.712,1.712,0,0,0-.788.676C39.068,183.651,18.186,294.69,28.43,404.354a2.016,2.016,0,0,0,.765,1.375A487.666,487.666,0,0,0,176.02,479.918a1.9,1.9,0,0,0,2.063-.676A348.2,348.2,0,0,0,208.12,430.4a1.86,1.86,0,0,0-1.019-2.588,321.173,321.173,0,0,1-45.868-21.853,1.885,1.885,0,0,1-.185-3.126c3.082-2.309,6.166-4.711,9.109-7.137a1.819,1.819,0,0,1,1.9-.256c96.229,43.917,200.41,43.917,295.5,0a1.812,1.812,0,0,1,1.924.233c2.944,2.426,6.027,4.851,9.132,7.16a1.884,1.884,0,0,1-.162,3.126,301.407,301.407,0,0,1-45.89,21.83,1.875,1.875,0,0,0-1,2.611,391.055,391.055,0,0,0,30.014,48.815,1.864,1.864,0,0,0,2.063.7A486.048,486.048,0,0,0,610.7,405.729a1.882,1.882,0,0,0,.765-1.352C623.729,277.594,590.933,167.465,524.531,69.836ZM222.491,337.58c-28.972,0-52.844-26.587-52.844-59.239S193.056,219.1,222.491,219.1c29.665,0,53.306,26.82,52.843,59.239C275.334,310.993,251.924,337.58,222.491,337.58Zm195.38,0c-28.971,0-52.843-26.587-52.843-59.239S388.437,219.1,417.871,219.1c29.667,0,53.307,26.82,52.844,59.239C470.715,310.993,447.538,337.58,417.871,337.58Z" />
-                  </svg>
-                </a>
-                <a href="https://www.youtube.com/@pinatacloud" target="_blank">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#f6f6f6"
-                    className="h-6 w-6"
-                    viewBox="0 0 576 512"
-                  >
-                    <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" />
-                  </svg>
-                </a>
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <Link href="/auth/register" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors">
+                  Start For Free
+                </Link>
+                <Link href="#how-it-works" className="bg-transparent border border-white hover:bg-white hover:text-gray-900 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors">
+                  Learn More
+                </Link>
+              </div>
+            </div>
+            <div className="md:w-1/2">
+              <img src="/api/placeholder/600/400" alt="IPFS Storage Illustration" className="rounded-xl shadow-2xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-16 bg-gray-800">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose DecentralStore?</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-gray-700 p-6 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="bg-blue-500 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">End-to-End Encryption</h3>
+              <p className="text-gray-300">Your files are encrypted before they leave your device, ensuring only you can access your data.</p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-gray-700 p-6 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="bg-green-500 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Decentralized Network</h3>
+              <p className="text-gray-300">Files are stored across a global network of nodes, eliminating single points of failure.</p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-gray-700 p-6 rounded-lg hover:shadow-lg transition-shadow">
+              <div className="bg-purple-500 rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Content Addressing</h3>
+              <p className="text-gray-300">Files are identified by their content, ensuring data integrity and preventing tampering.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-16">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+          <div className="grid md:grid-cols-4 gap-8">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="bg-blue-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold">1</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Upload Files</h3>
+              <p className="text-gray-300">Easily drag and drop files through our intuitive interface.</p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="bg-blue-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold">2</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Encryption</h3>
+              <p className="text-gray-300">Files are automatically encrypted using your personal keys.</p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="bg-blue-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold">3</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">IPFS Storage</h3>
+              <p className="text-gray-300">Content is distributed across the IPFS network.</p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="text-center">
+              <div className="bg-blue-500 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold">4</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Access Anywhere</h3>
+              <p className="text-gray-300">Retrieve your files from any device, anytime.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Additional Features */}
+      <section className="py-16 bg-gray-800">
+        <div className="container mx-auto px-6">
+          <h2 className="text-3xl font-bold text-center mb-12">Advanced Features</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Feature 1 */}
+            <div className="flex items-start">
+              <div className="bg-yellow-500 rounded-full w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-2">File Versioning</h3>
+                <p className="text-gray-300">Keep track of all changes to your files with automatic versioning. Restore previous versions at any time.</p>
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="flex items-start">
+              <div className="bg-green-500 rounded-full w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-2">File Sharing</h3>
+                <p className="text-gray-300">Securely share files with friends and colleagues. Control access with customizable permissions.</p>
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="flex items-start">
+              <div className="bg-blue-500 rounded-full w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-2">Usage Analytics</h3>
+                <p className="text-gray-300">Monitor your storage usage and file access patterns with detailed analytics and insights.</p>
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="flex items-start">
+              <div className="bg-purple-500 rounded-full w-10 h-10 flex items-center justify-center mr-4 flex-shrink-0">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold mb-2">Mobile Access</h3>
+                <p className="text-gray-300">Access your files on the go with our mobile apps for iOS and Android devices.</p>
               </div>
             </div>
           </div>
         </div>
-      </main>
-    </>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-blue-600">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to secure your files with IPFS?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">Join thousands of users trusting DecentralStore with their data.</p>
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <Link href="/auth/register" className="bg-white text-blue-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto">
+              Get Started Free
+            </Link>
+            <Link href="/auth/login" className="bg-transparent border-2 border-white hover:bg-white hover:text-blue-600 text-white font-bold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto">
+              Sign In
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
